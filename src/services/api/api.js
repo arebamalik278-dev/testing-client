@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://af-mart828.vercel.app/api';
+const API_BASE_URL = 'https://backendtestin.vercel.app/api';
 
 const fetchData = async (endpoint) => {
   try {
