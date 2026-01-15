@@ -1,0 +1,45 @@
+.home-page {
+  width: 100%;
+}
+
+.deals-section,
+.featured-section {
+  margin-top: 3rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1d1e22;
+}
+
+.view-all-link {
+  color: #feda6a;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: color 0.2s;
+}
+
+.view-all-link:hover {
+  color: #f0c852;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 1.75rem;
+  }
+}

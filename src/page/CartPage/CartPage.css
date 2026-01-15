@@ -1,0 +1,137 @@
+.cart-page {
+  padding: 2rem 0;
+}
+
+.cart-page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1d1e22;
+  margin-bottom: 2rem;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.cart-items-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-header {
+  margin-bottom: 1rem;
+}
+
+.items-count {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1d1e22;
+}
+
+.cart-summary {
+  background-color: white;
+  border: 1px solid #d4d4dc;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: fit-content;
+  position: sticky;
+  top: 6rem;
+}
+
+.summary-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1d1e22;
+  margin-bottom: 1.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: #393f4d;
+  font-size: 0.9375rem;
+}
+
+.summary-divider {
+  height: 1px;
+  background-color: #d4d4dc;
+  margin: 1rem 0;
+}
+
+.summary-total {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1d1e22;
+}
+
+.checkout-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #feda6a;
+  color: #1d1e22;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.checkout-button:hover {
+  background-color: #f0c852;
+}
+
+.checkout-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.promo-code-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.promo-input {
+  flex: 1;
+  padding: 0.625rem;
+  border: 1px solid #d4d4dc;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.promo-input:focus {
+  border-color: #feda6a;
+}
+
+.promo-button {
+  padding: 0.625rem 1rem;
+  background-color: #393f4d;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.promo-button:hover {
+  background-color: #1d1e22;
+}
+
+@media (min-width: 1024px) {
+  .cart-layout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+

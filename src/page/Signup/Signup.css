@@ -1,0 +1,10 @@
+
+.terms-checkbox {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.terms-checkbox .auth-link {
+  color: #feda6a;
+  text-decoration: underline;
+}
