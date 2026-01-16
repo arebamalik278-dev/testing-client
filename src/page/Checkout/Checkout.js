@@ -69,8 +69,11 @@ const Checkout = () => {
     });
   };
 
-  const handleBankChange = (_e) => {
-    // Placeholder for bank form changes
+  const handleBankChange = (e) => {
+    setBankData({
+      ...bankData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const getPaymentIcon = (methodId) => {
@@ -356,8 +359,8 @@ const Checkout = () => {
               <h2 className="section-heading">Payment Method</h2>
               
               <div className="payment-methods-grid">
-                {PAYMENT_METHODS.slice(0, 4).map((method) => (
-                  <div 
+                {PAYMENT_METHODS.map((method) => (
+                  <div
                     key={method.id}
                     className={`payment-method-card ${paymentMethod === method.id ? 'selected' : ''}`}
                     onClick={() => setPaymentMethod(method.id)}
