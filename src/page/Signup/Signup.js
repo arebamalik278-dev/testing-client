@@ -149,7 +149,7 @@ const Signup = () => {
 
             <label className="checkbox-label terms-checkbox">
               <input type="checkbox" className="checkbox-input" />
-              <span>I agree to the <a href="#" className="auth-link">Terms & Conditions</a> and <a href="#" className="auth-link">Privacy Policy</a></span>
+              <span>I agree to the <Link to="/terms-conditions" className="auth-link">Terms & Conditions</Link> and <Link to="/privacy-policy" className="auth-link">Privacy Policy</Link></span>
             </label>
 
             <button type="submit" className="auth-submit-btn" disabled={loading}>

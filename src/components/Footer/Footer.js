@@ -47,9 +47,9 @@ const Footer = () => {
               </button>
             </div>
             <div className="social-links">
-              <a href="#" className="social-link" aria-label="Facebook">FB</a>
-              <a href="#" className="social-link" aria-label="Twitter">TW</a>
-              <a href="#" className="social-link" aria-label="Instagram">IG</a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Facebook">FB</a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Twitter">TW</a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Instagram">IG</a>
             </div>
           </div>
         </div>

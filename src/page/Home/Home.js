@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import HeroBanner from '../../components/HeroBanner/HeroBanner';
 import CategoryMenu from '../../components/CatagoryMenu/CatagoryMenu';
 import ProductCard from '../../components/ProductCard/ProductCard';
@@ -74,7 +75,7 @@ const Home = () => {
       <section className="deals-section">
         <div className="section-header">
           <h2 className="section-title">Flash Deals</h2>
-          <a href="#" className="view-all-link">View All →</a>
+          <Link to="/flash-deals" className="view-all-link">View All →</Link>
         </div>
         <div className="products-grid">
           {products.slice(0, 4).map(product => (
@@ -86,7 +87,7 @@ const Home = () => {
       <section className="featured-section">
         <div className="section-header">
           <h2 className="section-title">Trending Products</h2>
-          <a href="#" className="view-all-link">View All →</a>
+          <Link to="/trending" className="view-all-link">View All →</Link>
         </div>
         <div className="products-grid">
           {products.map(product => (

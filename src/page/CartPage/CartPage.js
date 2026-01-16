@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './CartPage.css';
 
 const CartPage = () => {
-  const { cartItems, getCartTotal } = useCart();
+  const { cartItems } = useCart();
   const navigate = useNavigate();
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);

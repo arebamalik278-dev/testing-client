@@ -8,7 +8,7 @@ import { createOrder as createMockOrder, PAYMENT_METHODS } from '../../services/
 import './Checkout.css';
 
 const Checkout = () => {
-  const { cartItems, getCartTotal, clearCart } = useCart();
+  const { cartItems, clearCart } = useCart();
   const { user, isAuthenticated } = useUser();
   const navigate = useNavigate();
   
@@ -69,11 +69,8 @@ const Checkout = () => {
     });
   };
 
-  const handleBankChange = (e) => {
-    setBankData({
-      ...bankData,
-      [e.target.name]: e.target.value
-    });
+  const handleBankChange = (_e) => {
+    // Placeholder for bank form changes
   };
 
   const getPaymentIcon = (methodId) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff, Package, Save, ArrowLeft } from 'lucide-react';
 import './ProductUpdate.css';
 
@@ -7,7 +7,6 @@ import './ProductUpdate.css';
 const VALID_PASSWORDS = ['123456789012', '234567890123', '345678901234', '456789012345'];
 
 const ProductUpdate = () => {
-  const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
   const [passwords, setPasswords] = useState(['', '', '', '']);
   const [showPasswords, setShowPasswords] = useState([false, false, false, false]);

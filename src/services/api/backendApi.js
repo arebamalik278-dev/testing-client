@@ -193,7 +193,7 @@ export const checkApiHealth = async () => {
   }
 };
 
-export default {
+const backendApi = {
   loginUser,
   registerUser,
   getUserProfile,
@@ -211,4 +211,6 @@ export default {
   updateOrderStatus,
   checkApiHealth
 };
+
+export default backendApi;
 

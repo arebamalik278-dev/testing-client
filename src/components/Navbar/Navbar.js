@@ -43,8 +43,8 @@ const Navbar = () => {
               <span className="location-text">Deliver to Dunyapur, Punjab</span>
             </div>
             <div className="navbar-top-links">
-              <a href="#" className="top-link">Sell</a>
-              <a href="#" className="top-link">Customer Service</a>
+              <Link to="/sell" className="top-link">Sell</Link>
+              <Link to="/customer-service" className="top-link">Customer Service</Link>
               <Link to="/orders" className="top-link">Track Order</Link>
             </div>
           </div>
@@ -78,9 +78,9 @@ const Navbar = () => {
               {isCategoryOpen && (
                 <div className="category-dropdown">
                   {categories.map((category, index) => (
-                    <a key={index} href="#" className="category-item">
+                    <Link key={index} to={`/category/${category.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`} className="category-item">
                       {category}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -177,15 +177,15 @@ const Navbar = () => {
       <div className="navbar-categories">
         <div className="navbar-container">
           <div className="categories-scroll">
-            <a href="#" className="category-link">Today's Deals</a>
-            <a href="#" className="category-link">Electronics</a>
-            <a href="#" className="category-link">Fashion</a>
-            <a href="#" className="category-link">Home & Kitchen</a>
-            <a href="#" className="category-link">Beauty</a>
-            <a href="#" className="category-link">Sports</a>
-            <a href="#" className="category-link">Automotive</a>
-            <a href="#" className="category-link">Gift Cards</a>
-            <a href="#" className="category-link category-highlight">Flash Sale</a>
+            <Link to="/deals" className="category-link">Today's Deals</Link>
+            <Link to="/category/electronics" className="category-link">Electronics</Link>
+            <Link to="/category/fashion" className="category-link">Fashion</Link>
+            <Link to="/category/home-kitchen" className="category-link">Home & Kitchen</Link>
+            <Link to="/category/beauty" className="category-link">Beauty</Link>
+            <Link to="/category/sports" className="category-link">Sports</Link>
+            <Link to="/category/automotive" className="category-link">Automotive</Link>
+            <Link to="/gift-cards" className="category-link">Gift Cards</Link>
+            <Link to="/flash-sale" className="category-link category-highlight">Flash Sale</Link>
           </div>
         </div>
       </div>
@@ -235,19 +235,19 @@ const Navbar = () => {
               <div className="mobile-section">
                 <h3 className="mobile-section-title">Shop by Category</h3>
                 {categories.map((category, index) => (
-                  <a key={index} href="#" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                  <Link key={index} to={`/category/${category.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`} className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                     {category}
-                  </a>
+                  </Link>
                 ))}
               </div>
 
               {/* Mobile Quick Links */}
               <div className="mobile-section">
                 <h3 className="mobile-section-title">Quick Links</h3>
-                <a href="#" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Today's Deals</a>
-                <a href="#" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Flash Sale</a>
+                <Link to="/deals" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Today's Deals</Link>
+                <Link to="/flash-sale" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Flash Sale</Link>
                 <Link to="/orders" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Track Order</Link>
-                <a href="#" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Customer Service</a>
+                <Link to="/customer-service" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>Customer Service</Link>
                 {isAuthenticated && (
                   <>
                     <Link to="/profile" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>My Profile</Link>
