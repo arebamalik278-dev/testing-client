@@ -4,7 +4,7 @@ import HeroBanner from '../../components/HeroBanner/HeroBanner';
 import CategoryMenu from '../../components/CatagoryMenu/CatagoryMenu';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import backendApi from '../../services/api/backendApi';
-import { getLimitedProducts } from '../../services/api/api';
+import socketService from '../../services/socketService';
 import './Home.css';
 
 const Home = () => {
@@ -16,21 +16,8 @@ const Home = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        // Try to fetch from real backend first
-        try {
-          const backendData = await backendApi.getAllProducts();
-          if (backendData && backendData.length > 0) {
-            setProducts(backendData.slice(0, 12));
-            setLoading(false);
-            return;
-          }
-        } catch (backendErr) {
-          console.warn('Backend not available, falling back to mock API');
-        }
-        
-        // Fallback to mock API if backend fails
-        const mockData = await getLimitedProducts(12);
-        setProducts(mockData);
+        const backendData = await backendApi.getAllProducts();
+        setProducts(backendData.slice(0, 12));
       } catch (err) {
         setError('Failed to load products');
         console.error(err);
@@ -40,6 +27,49 @@ const Home = () => {
     };
 
     fetchProducts();
+  }, []);
+
+  // Socket.io real-time updates
+  useEffect(() => {
+    // Connect to socket
+    const connectSocket = async () => {
+      try {
+        await socketService.connect();
+        
+        // Listen for product updates
+        socketService.on('PRODUCT_CREATED', (newProduct) => {
+          setProducts(prevProducts => {
+            if (prevProducts.length < 12) {
+              return [...prevProducts, newProduct].slice(0, 12);
+            }
+            return prevProducts;
+          });
+        });
+
+        socketService.on('PRODUCT_UPDATED', (updatedProduct) => {
+          setProducts(prevProducts =>
+            prevProducts.map(product =>
+              product._id === updatedProduct._id ? updatedProduct : product
+            )
+          );
+        });
+
+        socketService.on('PRODUCT_DELETED', (deletedProduct) => {
+          setProducts(prevProducts =>
+            prevProducts.filter(product => product._id !== deletedProduct._id)
+          );
+        });
+      } catch (error) {
+        console.error('Failed to connect to socket:', error);
+      }
+    };
+
+    connectSocket();
+
+    // Cleanup
+    return () => {
+      socketService.disconnect();
+    };
   }, []);
 
   if (loading) {

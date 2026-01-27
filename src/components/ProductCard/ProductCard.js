@@ -1,15 +1,34 @@
 import { ShoppingCart, Heart, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext/CartContext';
+import { useWishlist } from '../../context/WishlistContext/WishlistContext';
 import StarRating from '../StarRating/StarRating';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const { addToCart, isInCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   // Handle both _id (backend) and id (mock API)
   const productId = product._id || product.id;
   const productName = product.name || product.title;
   const inCart = isInCart(productId);
+  const inWishlist = isInWishlist(productId);
+
+  const handleWishlist = (e) => {
+    e.preventDefault();
+    const productToAdd = {
+      ...product,
+      id: productId,
+      productId: productId,
+      title: productName,
+      name: productName
+    };
+    if (inWishlist) {
+      removeFromWishlist(productId);
+    } else {
+      addToWishlist(productToAdd);
+    }
+  };
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -25,11 +44,14 @@ const ProductCard = ({ product }) => {
   return (
     <Link to={`/product/${productId}`} className="product-card">
       <div className="product-image-wrapper">
-        <img src={product.image} alt={productName} className="product-image" />
+        <img src={product.images?.[0]?.url || product.image} alt={productName} className="product-image" />
         {product.discount && (
           <span className="product-discount">-{product.discount}%</span>
         )}
-        <button className="wishlist-button" onClick={(e) => e.preventDefault()}>
+        <button 
+          className={`wishlist-button ${inWishlist ? 'in-wishlist' : ''}`} 
+          onClick={handleWishlist}
+        >
           <Heart className="wishlist-icon" />
         </button>
       </div>

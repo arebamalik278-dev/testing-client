@@ -1,5 +1,5 @@
 // Backend API Service - Connects to real backend server
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://backendtestin.vercel.app/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('shophub_token');
@@ -16,7 +16,7 @@ const handleResponse = async (response) => {
 
 // Auth APIs
 export const loginUser = async (credentials) => {
-  const response = await fetch(`${API_BASE_URL}/users/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export const registerUser = async (userData) => {
 };
 
 export const getUserProfile = async () => {
-  const response = await fetch(`${API_BASE_URL}/users/profile`, {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -56,7 +56,8 @@ export const getAllProducts = async () => {
       'Content-Type': 'application/json',
     },
   });
-  return handleResponse(response);
+  const data = await handleResponse(response);
+  return data.data;
 };
 
 export const getProductById = async (id) => {
@@ -66,7 +67,8 @@ export const getProductById = async (id) => {
       'Content-Type': 'application/json',
     },
   });
-  return handleResponse(response);
+  const data = await handleResponse(response);
+  return data.data;
 };
 
 export const getProductsByCategory = async (category) => {
@@ -76,7 +78,8 @@ export const getProductsByCategory = async (category) => {
       'Content-Type': 'application/json',
     },
   });
-  return handleResponse(response);
+  const data = await handleResponse(response);
+  return data.data;
 };
 
 export const getCategories = async () => {
@@ -86,7 +89,8 @@ export const getCategories = async () => {
       'Content-Type': 'application/json',
     },
   });
-  return handleResponse(response);
+  const data = await handleResponse(response);
+  return data.data;
 };
 
 export const createProduct = async (productData) => {
@@ -126,19 +130,60 @@ export const deleteProduct = async (id) => {
 
 // Order APIs
 export const createOrder = async (orderData) => {
+  // Transform client order format to server expected format
+  const transformedOrder = {
+    items: orderData.orderItems.map(item => ({
+      product: item.productId || item.id,
+      quantity: item.qty || item.quantity,
+      name: item.name,
+      price: item.price,
+      image: item.image
+    })),
+    shippingAddress: {
+      street: orderData.shippingAddress.address,
+      city: orderData.shippingAddress.city,
+      state: orderData.shippingAddress.state,
+      zipCode: orderData.shippingAddress.postalCode || orderData.shippingAddress.zipCode,
+      country: orderData.shippingAddress.country,
+      phone: orderData.shippingAddress.phone || orderData.phone
+    },
+    paymentInfo: {
+      method: transformPaymentMethod(orderData.paymentMethod)
+    },
+    notes: orderData.notes || ''
+  };
+  
   const response = await fetch(`${API_BASE_URL}/orders`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...getAuthHeaders()
     },
-    body: JSON.stringify(orderData),
+    body: JSON.stringify(transformedOrder),
   });
   return handleResponse(response);
 };
 
+// Helper function to transform payment method from client format to server format
+const transformPaymentMethod = (method) => {
+  const methodMap = {
+    'cod': 'Cash on Delivery',
+    'card': 'Credit Card',
+    'jazzcash': 'Cash on Delivery',
+    'easypaisa': 'Cash on Delivery',
+    'bank_transfer': 'Bank Transfer',
+    'khatain': 'Cash on Delivery',
+    'nayapay': 'Cash on Delivery',
+    'sadapay': 'Cash on Delivery',
+    'paypro': 'Credit Card',
+    'mobilepos': 'Credit Card',
+    'safepay': 'Credit Card'
+  };
+  return methodMap[method] || 'Cash on Delivery';
+};
+
 export const getUserOrders = async () => {
-  const response = await fetch(`${API_BASE_URL}/orders/myorders`, {
+  const response = await fetch(`${API_BASE_URL}/orders/my-orders`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -193,6 +238,31 @@ export const checkApiHealth = async () => {
   }
 };
 
+// Banner APIs
+export const getActiveBanners = async () => {
+  const response = await fetch(`${API_BASE_URL}/banners/active`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+// Payment APIs
+export const post = async (endpoint, data) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders()
+    },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
 const backendApi = {
   loginUser,
   registerUser,
@@ -209,7 +279,9 @@ const backendApi = {
   getOrderById,
   getAllOrders,
   updateOrderStatus,
-  checkApiHealth
+  checkApiHealth,
+  getActiveBanners,
+  post
 };
 
 export default backendApi;

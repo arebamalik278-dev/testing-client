@@ -1,58 +1,15 @@
-const API_BASE_URL = 'https://backendtestin.vercel.app/api';
-
-// Default products for client when no backend/localStorage data
-const defaultProducts = [
-  { _id: '1', id: '1', name: 'iPhone 15 Pro', sku: 'IPP-001', category: 'Electronics', price: 279999, countInStock: 234, image: 'https://via.placeholder.com/60x60/3b82f6/ffffff?text=iPhone', description: 'Latest iPhone with A17 Pro chip', rating: { rate: 4.8, count: 156 } },
-  { _id: '2', id: '2', name: 'MacBook Air M3', sku: 'MBA-002', category: 'Electronics', price: 309999, countInStock: 156, image: 'https://via.placeholder.com/60x60/10b981/ffffff?text=MacBook', description: 'Superfast MacBook with M3 chip', rating: { rate: 4.9, count: 203 } },
-  { _id: '3', id: '3', name: 'AirPods Pro 2', sku: 'APP-003', category: 'Audio', price: 69999, countInStock: 432, image: 'https://via.placeholder.com/60x60/8b5cf6/ffffff?text=AirPods', description: 'Wireless earbuds with ANC', rating: { rate: 4.7, count: 312 } },
-  { _id: '4', id: '4', name: 'Apple Watch Ultra', sku: 'AWU-004', category: 'Wearables', price: 224999, countInStock: 89, image: 'https://via.placeholder.com/60x60/f59e0b/ffffff?text=Watch', description: 'Advanced sports watch', rating: { rate: 4.5, count: 78 } },
-  { _id: '5', id: '5', name: 'iPad Pro 12.9"', sku: 'IPP-005', category: 'Tablets', price: 309999, countInStock: 123, image: 'https://via.placeholder.com/60x60/ef4444/ffffff?text=iPad', description: 'Pro tablet with M2 chip', rating: { rate: 4.6, count: 89 } },
-  { _id: '6', id: '6', name: 'Samsung Galaxy S24', sku: 'SGS-006', category: 'Electronics', price: 239999, countInStock: 267, image: 'https://via.placeholder.com/60x60/06b6d4/ffffff?text=Galaxy', description: 'Latest Galaxy with AI features', rating: { rate: 4.2, count: 98 } },
-  { _id: '7', id: '7', name: 'Sony WH-1000XM5', sku: 'SWH-007', category: 'Audio', price: 98999, countInStock: 178, image: 'https://via.placeholder.com/60x60/6366f1/ffffff?text=Sony', description: 'Premium noise cancelling headphones', rating: { rate: 4.4, count: 145 } },
-  { _id: '8', id: '8', name: 'Nintendo Switch OLED', sku: 'NSO-008', category: 'Gaming', price: 98999, countInStock: 45, image: 'https://via.placeholder.com/60x60/ec4899/ffffff?text=Switch', description: 'Gaming console with OLED screen', rating: { rate: 4.3, count: 67 } }
-];
+const API_BASE_URL = 'http://localhost:5000/api';
 
 const fetchData = async (endpoint) => {
   try {
-    // Try backend first
     const response = await fetch(`${API_BASE_URL}${endpoint}`);
     if (response.ok) {
       const data = await response.json();
-      // Save to localStorage for sync
-      if (endpoint === '/products') {
-        localStorage.setItem('clientProducts', JSON.stringify(data));
-      }
       return data;
     }
-    throw new Error('Backend not available');
+    throw new Error('Backend API failed');
   } catch (error) {
-    console.warn('API Error, falling back to localStorage:', error.message);
-    
-    // Fallback to localStorage
-    if (endpoint === '/products') {
-      const stored = localStorage.getItem('clientProducts');
-      if (stored) {
-        return JSON.parse(stored);
-      }
-      // If no stored data, check admin products
-      const adminProducts = localStorage.getItem('adminProducts');
-      if (adminProducts) {
-        const adminData = JSON.parse(adminProducts);
-        // Transform to client format
-        const clientData = adminData.map(p => ({
-          ...p,
-          _id: p.id,
-          countInStock: p.stock,
-          description: `${p.name} - ${p.category}`,
-          rating: { rate: 4.5, count: 100 }
-        }));
-        localStorage.setItem('clientProducts', JSON.stringify(clientData));
-        return clientData;
-      }
-      // Return default products
-      localStorage.setItem('clientProducts', JSON.stringify(defaultProducts));
-      return defaultProducts;
-    }
+    console.error('API Error:', error.message);
     throw error;
   }
 };
@@ -62,26 +19,16 @@ export const getAllProducts = async () => {
 };
 
 export const getProductById = async (id) => {
-  // Try localStorage first
-  const stored = localStorage.getItem('clientProducts');
-  if (stored) {
-    const products = JSON.parse(stored);
-    const product = products.find(p => p._id === id || p.id === id);
-    if (product) return product;
-  }
-  
-  // Try backend
   try {
     const response = await fetch(`${API_BASE_URL}/products/${id}`);
     if (response.ok) {
       return await response.json();
     }
+    throw new Error('Product not found');
   } catch (error) {
-    console.warn('Backend not available');
+    console.error('Error fetching product:', error.message);
+    throw error;
   }
-  
-  // Try default products
-  return defaultProducts.find(p => p._id === id || p.id === id);
 };
 
 export const getProductsByCategory = async (category) => {
@@ -90,9 +37,17 @@ export const getProductsByCategory = async (category) => {
 };
 
 export const getCategories = async () => {
-  const products = await fetchData('/products');
-  const categories = [...new Set(products.map(p => p.category))];
-  return categories;
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.data; // Backend returns { success: true, count: x, data: [categories] }
+    }
+    throw new Error('Failed to fetch categories');
+  } catch (error) {
+    console.error('Error fetching categories:', error.message);
+    throw error;
+  }
 };
 
 export const getLimitedProducts = async (limit = 10) => {
@@ -148,6 +103,7 @@ export const createOrder = async (orderData) => {
 
 // Payment Methods Available in Pakistan
 export const PAYMENT_METHODS = [
+  { id: 'safepay', name: 'SafePay', icon: '🛡️', popular: true, description: 'Secure Online Payment with SSL Encryption' },
   { id: 'card', name: 'Credit / Debit Card', icon: '💳', popular: true, description: 'Visa, Mastercard, UnionPay' },
   { id: 'jazzcash', name: 'JazzCash', icon: '📱', popular: true, description: 'Mobile Wallet - *786#' },
   { id: 'easypaisa', name: 'EasyPaisa', icon: '📱', popular: true, description: 'Mobile Wallet - *786#' },
@@ -184,27 +140,5 @@ export const getUserOrders = async (userId) => {
   });
 };
 
-// Initialize client products from admin products on first load
-export const initializeClientProducts = () => {
-  const stored = localStorage.getItem('clientProducts');
-  if (!stored) {
-    const adminProducts = localStorage.getItem('adminProducts');
-    if (adminProducts) {
-      const adminData = JSON.parse(adminProducts);
-      const clientData = adminData.map(p => ({
-        ...p,
-        _id: p.id,
-        countInStock: p.stock,
-        description: `${p.name} - ${p.category}`,
-        rating: { rate: 4.5, count: 100 }
-      }));
-      localStorage.setItem('clientProducts', JSON.stringify(clientData));
-    } else {
-      localStorage.setItem('clientProducts', JSON.stringify(defaultProducts));
-    }
-  }
-};
 
-// Call initialization
-initializeClientProducts();
 

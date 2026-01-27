@@ -1,7 +1,26 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import './Footer.css';
 
 const Footer = () => {
+  const [paymentMethods, setPaymentMethods] = useState([]);
+
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/settings/payment-methods`);
+        const data = await response.json();
+        if (data.success) {
+          setPaymentMethods(data.data.filter(method => method.enabled));
+        }
+      } catch (error) {
+        console.error('Error fetching payment methods:', error);
+      }
+    };
+
+    fetchPaymentMethods();
+  }, []);
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -29,6 +48,18 @@ const Footer = () => {
             <ul className="footer-links">
               <li><Link to="/privacy-policy" className="footer-link">Privacy Policy</Link></li>
               <li><Link to="/terms-conditions" className="footer-link">Terms & Conditions</Link></li>
+            </ul>
+          </div>
+
+          {/* Payment Methods */}
+          <div className="footer-section">
+            <h4 className="footer-heading">Payment Methods</h4>
+            <ul className="footer-links payment-methods-list">
+              {paymentMethods.map(method => (
+                <li key={method.id} className="payment-method-item">
+                  {method.name}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -63,4 +94,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

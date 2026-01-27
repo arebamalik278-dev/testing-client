@@ -42,6 +42,9 @@ const OrderHistory = () => {
   }, [user, isAuthenticated]);
 
   const getStatusConfig = (status) => {
+    // Normalize status to lowercase for matching
+    const normalizedStatus = status ? status.toLowerCase() : 'pending';
+    
     const configs = {
       delivered: {
         icon: CheckCircle,
@@ -58,17 +61,30 @@ const OrderHistory = () => {
       processing: {
         icon: Package,
         label: 'Processing',
-        color: '#feda6a',
+        color: '#f59e0b',
         bgColor: '#fef3c7'
+      },
+      pending: {
+        icon: Package,
+        label: 'Pending',
+        color: '#6b7280',
+        bgColor: '#f3f4f6'
       },
       cancelled: {
         icon: XCircle,
         label: 'Cancelled',
         color: '#ef4444',
         bgColor: '#fee2e2'
+      },
+      refunded: {
+        icon: XCircle,
+        label: 'Refunded',
+        color: '#8b5cf6',
+        bgColor: '#ede9fe'
       }
     };
-    return configs[status];
+    
+    return configs[normalizedStatus] || configs.pending;
   };
 
   if (!isAuthenticated) {
@@ -131,8 +147,9 @@ const OrderHistory = () => {
               <div className="order-header">
                 <div className="order-header-left">
                   <div className="order-id-section">
-                    <span className="order-id">{order.id}</span>
-                    <span className="order-date">{order.date}</span>
+                    <span className="order-tracking-label">Tracking Number:</span>
+                    <span className="order-tracking-number">{order.orderNumber || order.id}</span>
+                    <span className="order-date">{order.date || new Date(order.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div 
                     className="order-status-badge"
@@ -147,7 +164,7 @@ const OrderHistory = () => {
                 </div>
                 <div className="order-total">
                   <span className="total-label">Total:</span>
-                  <span className="total-amount">Rs {order.total.toFixed(2)}</span>
+                  <span className="total-amount">Rs {Number(order.total || order.totalAmount || 0).toFixed(2)}</span>
                 </div>
               </div>
 
@@ -159,7 +176,7 @@ const OrderHistory = () => {
                       <p className="order-item-title">{item.title}</p>
                       <p className="order-item-qty">Quantity: {item.quantity}</p>
                     </div>
-                    <p className="order-item-price">Rs {item.price.toFixed(2)}</p>
+                    <p className="order-item-price">Rs {Number(item.price || 0).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
@@ -169,12 +186,12 @@ const OrderHistory = () => {
                   <Eye className="action-btn-icon" />
                   View Details
                 </button>
-                {order.status === 'delivered' && (
+                {order.status.toLowerCase() === 'delivered' && (
                   <button className="order-action-btn reorder-btn">
                     Reorder
                   </button>
                 )}
-                {order.status === 'shipped' && (
+                {order.status.toLowerCase() === 'shipped' && (
                   <button className="order-action-btn track-btn">
                     Track Order
                   </button>

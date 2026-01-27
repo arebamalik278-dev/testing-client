@@ -62,6 +62,20 @@
   color: #1d1e22;
 }
 
+.order-tracking-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.order-tracking-number {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 1px;
+  font-family: monospace;
+}
+
 .order-date {
   font-size: 0.8125rem;
   color: #6b7280;

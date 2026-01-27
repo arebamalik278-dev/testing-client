@@ -3,17 +3,27 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext/CartContext';
 import { useUser } from '../../context/UserContext/UserContext';
+import { useWishlist } from '../../context/WishlistContext/WishlistContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { getCartCount } = useCart();
   const { user, isAuthenticated, logout } = useUser();
+  const { getWishlistCount } = useWishlist();
   const navigate = useNavigate();
 
   const cartItemCount = getCartCount();
-  const wishlistCount = 0;
+  const wishlistCount = getWishlistCount();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const categories = [
     'Electronics',
@@ -88,16 +98,18 @@ const Navbar = () => {
 
             {/* Search Bar */}
             <div className="search-bar">
-              <div className="search-wrapper">
+              <form onSubmit={handleSearch} className="search-wrapper">
                 <input
                   type="text"
                   placeholder="Search for products, brands and more..."
                   className="search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button className="search-button">
+                <button type="submit" className="search-button">
                   <Search className="search-icon" />
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Right Actions */}
@@ -193,16 +205,18 @@ const Navbar = () => {
       {/* Mobile Search Bar */}
       <div className="search-mobile">
         <div className="navbar-container">
-          <div className="search-wrapper">
+          <form onSubmit={handleSearch} className="search-wrapper">
             <input
               type="text"
               placeholder="Search products..."
               className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="search-button">
+            <button type="submit" className="search-button">
               <Search className="search-icon" />
             </button>
-          </div>
+          </form>
         </div>
       </div>
 

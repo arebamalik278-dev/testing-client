@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext/CartContext';
 import { UserProvider } from './context/UserContext/UserContext';
+import { WishlistProvider } from './context/WishlistContext/WishlistContext';
 import MainLayout from './components/MainLayout/MainLayout';
 import Home from './page/Home/Home';
 import ProductPage from './page/ProductPage/ProductPage';
@@ -16,6 +17,8 @@ import FAQ from './page/FAQ/FAQ';
 import Careers from './page/Careers/Careers';
 import PrivacyPolicy from './page/PrivacyPolicy/PrivacyPolicy';
 import TermsConditions from './page/TermsConditions/TermsConditions';
+import SearchPage from './page/SearchPage/SearchPage';
+import WishlistPage from './page/WishlistPage/WishlistPage';
 import './App.css';
 
 
@@ -24,8 +27,9 @@ function App() {
     <Router>
       <UserProvider>
         <CartProvider>
-          <MainLayout>
-            <Routes>
+          <WishlistProvider>
+            <MainLayout>
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/cart" element={<CartPage />} />
@@ -40,8 +44,11 @@ function App() {
               <Route path="/careers" element={<Careers />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-conditions" element={<TermsConditions />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
             </Routes>
           </MainLayout>
+          </WishlistProvider>
         </CartProvider>
       </UserProvider>
     </Router>

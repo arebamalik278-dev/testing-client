@@ -128,6 +128,20 @@
 
 @media (min-width: 1024px) {
   .footer-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
+}
+
+.payment-methods-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.payment-method-item {
+  background-color: #393f4d;
+  color: #d4d4dc;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
 }

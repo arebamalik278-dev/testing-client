@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Clock } from 'lucide-react';
 import StarRating from '../../components/StarRating/StarRating';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import { useCart } from '../../context/CartContext/CartContext';
+import { useWishlist } from '../../context/WishlistContext/WishlistContext';
 import backendApi from '../../services/api/backendApi';
-import { getProductById as getMockProductById } from '../../services/api/api';
+import socketService from '../../services/socketService';
 import './ProductPage.css';
 
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -25,15 +27,7 @@ const ProductPage = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        let data;
-        
-        // Try to fetch from real backend first
-        try {
-          data = await backendApi.getProductById(id);
-        } catch (backendErr) {
-          console.warn('Backend not available, using mock API');
-          data = await getMockProductById(id);
-        }
+        const data = await backendApi.getProductById(id);
         
         if (data) {
           // Transform backend data to match UI expectations
@@ -43,13 +37,13 @@ const ProductPage = () => {
             title: data.name || data.title,
             description: data.description || 'Product description',
             images: [
-              data.image || data.image,
+              data.images?.[0]?.url || 'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600',
               'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600',
               'https://images.unsplash.com/photo-1545127398-14699f92334b?w=600'
             ],
-            inStock: data.countInStock > 0,
-            originalPrice: data.price * 1.3,
-            discount: 23,
+            inStock: data.stock > 0,
+            originalPrice: data.discountPrice ? data.price : data.price * 1.3,
+            discount: data.discountPercentage || 23,
             reviewCount: Math.floor(Math.random() * 500) + 50,
             seller: {
               name: 'AF Mart Official Store',
@@ -61,7 +55,7 @@ const ProductPage = () => {
               'Brand': data.brand || 'AF Mart',
               'Model': 'AF-' + Math.floor(Math.random() * 1000),
               'Category': data.category || 'General',
-              'Stock': data.countInStock || 10
+              'Stock': data.stock || 10
             },
             reviews: [
               {
@@ -143,6 +137,40 @@ const ProductPage = () => {
     }
   }, [id]);
 
+  // Socket.io real-time updates
+  useEffect(() => {
+    const connectSocket = async () => {
+      try {
+        await socketService.connect();
+        
+        // Listen for product updates
+        socketService.on('PRODUCT_UPDATED', (updatedProduct) => {
+          if (product && product._id === updatedProduct._id) {
+            setProduct(prevProduct => ({
+              ...prevProduct,
+              ...updatedProduct
+            }));
+          }
+        });
+
+        socketService.on('PRODUCT_DELETED', (deletedProduct) => {
+          if (product && product._id === deletedProduct._id) {
+            navigate('/');
+          }
+        });
+      } catch (error) {
+        console.error('Failed to connect to socket:', error);
+      }
+    };
+
+    connectSocket();
+
+    // Cleanup
+    return () => {
+      socketService.disconnect();
+    };
+  }, [product, navigate]);
+
   const handleAddToCart = () => {
     if (product) {
       addToCart({
@@ -151,7 +179,7 @@ const ProductPage = () => {
         title: product.title || product.name,
         name: product.title || product.name,
         price: product.price,
-        image: product.image
+        image: product.images?.[0]
       });
       // Optionally show a success message or notification
     }
@@ -160,6 +188,24 @@ const ProductPage = () => {
   const handleBuyNow = () => {
     handleAddToCart();
     navigate('/cart');
+  };
+
+  const handleWishlist = () => {
+    if (product) {
+      const productToAdd = {
+        id: product._id || product.id,
+        productId: product._id || product.id,
+        title: product.title || product.name,
+        name: product.title || product.name,
+        price: product.price,
+        image: product.images?.[0]
+      };
+      if (isInWishlist(product._id || product.id)) {
+        removeFromWishlist(product._id || product.id);
+      } else {
+        addToWishlist(productToAdd);
+      }
+    }
   };
 
   if (loading) {
@@ -257,7 +303,10 @@ const ProductPage = () => {
             <button className="buy-now-btn" onClick={handleBuyNow}>
               Buy Now
             </button>
-            <button className="wishlist-btn">
+            <button 
+              className={`wishlist-btn ${isInWishlist(product._id || product.id) ? 'in-wishlist' : ''}`}
+              onClick={handleWishlist}
+            >
               <Heart className="btn-icon" />
             </button>
             <button className="share-btn">
@@ -271,6 +320,13 @@ const ProductPage = () => {
               <div>
                 <h4>Free Delivery</h4>
                 <p>On orders over Rs 50</p>
+              </div>
+            </div>
+            <div className="feature-item">
+              <Clock className="feature-icon" />
+              <div>
+                <h4>Estimated Delivery</h4>
+                <p>4-7 business days</p>
               </div>
             </div>
             <div className="feature-item">
@@ -306,7 +362,7 @@ const ProductPage = () => {
             <p className="description-text">{product.description || product.title}</p>
 
             <h4 className="features-title">Category:</h4>
-            <p className="category-text">{product.category}</p>
+            <p className="category-text">{product.category?.name || product.category || 'General'}</p>
           </div>
         </div>
 
@@ -329,7 +385,7 @@ const ProductPage = () => {
         <div className="customer-reviews">
           <h3 className="section-title">Customer Reviews</h3>
           <div className="reviews-summary">
-            <StarRating rating={product.rating} />
+            <StarRating rating={typeof product.rating === 'number' ? product.rating : (product.rating?.rate || 0)} />
             <span className="reviews-count">Based on {product.reviews.length} reviews</span>
           </div>
           <div className="reviews-list">

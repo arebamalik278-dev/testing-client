@@ -1,10 +1,11 @@
-import { CreditCard, Lock, Smartphone, Building2, Wallet, HandCoins, CreditCard as CardIcon } from 'lucide-react';
+import { CreditCard, Lock, Smartphone, Building2, Wallet, HandCoins, CreditCard as CardIcon, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext/CartContext';
 import { useUser } from '../../context/UserContext/UserContext';
 import backendApi from '../../services/api/backendApi';
 import { createOrder as createMockOrder, PAYMENT_METHODS } from '../../services/api/api';
+import SafePayPayment from '../../components/SafePayPayment/SafePayPayment';
 import './Checkout.css';
 
 const Checkout = () => {
@@ -42,6 +43,8 @@ const Checkout = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [safepayComplete, setSafepayComplete] = useState(false);
+  const [safepayData, setSafepayData] = useState(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = cartItems.length > 0 ? 10.00 : 0;
@@ -78,6 +81,7 @@ const Checkout = () => {
 
   const getPaymentIcon = (methodId) => {
     const icons = {
+      safepay: <ShieldCheck className="text-green-500" />,
       card: <CreditCard />,
       jazzcash: <Smartphone />,
       easypaisa: <Smartphone />,
@@ -94,6 +98,7 @@ const Checkout = () => {
 
   const getPaymentInstructions = () => {
     const instructions = {
+      safepay: 'Secure online payment with SSL encryption. Supports all major credit and debit cards.',
       card: 'Enter your card details above. We accept Visa, Mastercard, and UnionPay.',
       jazzcash: 'Send payment to: 0321-1234567 (JazzCash Account). Enter the transaction ID below.',
       easypaisa: 'Send payment to: 0301-1234567 (EasyPaisa Account). Enter the transaction ID below.',
@@ -109,6 +114,10 @@ const Checkout = () => {
   };
 
   const validatePayment = () => {
+    if (paymentMethod === 'safepay' && !safepayComplete) {
+      setError('Please complete the SafePay payment first');
+      return false;
+    }
     if (paymentMethod === 'card') {
       if (!cardData.cardNumber || !cardData.cardName || !cardData.expiryDate || !cardData.cvv) {
         setError('Please fill in all card details');
@@ -172,7 +181,15 @@ const Checkout = () => {
         taxPrice: tax,
         totalPrice: total,
         isPaid: paymentMethod === 'cod' ? false : true,
-        paidAt: paymentMethod === 'cod' ? null : new Date().toISOString()
+        paidAt: paymentMethod === 'cod' ? null : new Date().toISOString(),
+        ...(paymentMethod === 'safepay' && safepayData ? {
+          paymentDetails: {
+            trackingId: safepayData.trackingId,
+            transactionId: safepayData.transactionId,
+            amount: safepayData.amount,
+            currency: safepayData.currency
+          }
+        } : {})
       };
 
       // Try to create order with real backend first
@@ -466,6 +483,33 @@ const Checkout = () => {
                 </div>
               )}
 
+              {/* SafePay Payment Component */}
+              {paymentMethod === 'safepay' && !safepayComplete && (
+                <div className="safepay-section">
+                  <SafePayPayment
+                    amount={total}
+                    currency="PKR"
+                    orderId={`ORD-${Date.now()}`}
+                    customerEmail={formData.email}
+                    customerName={`${formData.firstName} ${formData.lastName}`}
+                    onPaymentSuccess={(data) => {
+                      setSafepayComplete(true);
+                      setSafepayData(data);
+                    }}
+                    onPaymentError={(error) => {
+                      setError(error);
+                    }}
+                  />
+                </div>
+              )}
+
+              {safepayComplete && paymentMethod === 'safepay' && (
+                <div className="safepay-complete-notice">
+                  <Lock size={18} />
+                  <span>Payment completed successfully! You can now place your order.</span>
+                </div>
+              )}
+
               <div className="security-notice">
                 <Lock className="security-icon" />
                 <span>Your payment information is secure and encrypted</span>
@@ -515,6 +559,12 @@ const Checkout = () => {
               <span>Total:</span>
               <span>Rs {total.toFixed(2)}</span>
             </div>
+          </div>
+
+          <div className="delivery-estimate">
+            <p className="delivery-estimate-title">📦 Estimated Delivery</p>
+            <p className="delivery-estimate-text">4-7 business days</p>
+            <p className="delivery-estimate-note">Your order will be processed within 24-48 hours</p>
           </div>
         </div>
       </div>

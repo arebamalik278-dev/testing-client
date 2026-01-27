@@ -33,15 +33,20 @@ export const UserProvider = ({ children }) => {
     try {
       const response = await backendApi.loginUser(credentials);
       
-      if (response.success && response.data) {
+      // Handle different response formats from backend
+      const userResponse = response.data || response;
+      const token = response.token || response.data?.token;
+      
+      if (userResponse._id && token) {
         const userData = {
-          ...response.data,
-          name: response.data.name || credentials.email.split('@')[0]
+          ...userResponse,
+          name: userResponse.name || credentials.email.split('@')[0],
+          token: token
         };
         
         setUser(userData);
         setIsAuthenticated(true);
-        localStorage.setItem('shophub_token', userData.token);
+        localStorage.setItem('shophub_token', token);
         
         return userData;
       } else {
@@ -69,21 +74,30 @@ export const UserProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      console.log('Registering user:', userData);
       const response = await backendApi.registerUser(userData);
+      console.log('Registration response:', response);
       
-      if (response._id) {
+      // Handle different response formats from backend
+      const userResponse = response.data || response;
+      const token = response.token || response.data?.token;
+      console.log('User response:', userResponse);
+      console.log('Token:', token);
+      
+      if (userResponse._id && token) {
         const newUser = {
-          ...response,
-          name: response.name || userData.name
+          ...userResponse,
+          name: userResponse.name || userData.name,
+          token: token
         };
         
         setUser(newUser);
         setIsAuthenticated(true);
-        localStorage.setItem('shophub_token', response.token);
+        localStorage.setItem('shophub_token', token);
         
         return newUser;
       } else {
-        throw new Error('Registration failed');
+        throw new Error('Registration failed: Invalid response format');
       }
     } catch (error) {
       console.error('Registration error:', error);

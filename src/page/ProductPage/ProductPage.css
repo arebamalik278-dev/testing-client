@@ -222,6 +222,15 @@
   height: 1.25rem;
 }
 
+.wishlist-btn.in-wishlist {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.wishlist-btn.in-wishlist .btn-icon {
+  color: #ef4444;
+}
+
 .product-features {
   display: grid;
   grid-template-columns: 1fr;

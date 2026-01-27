@@ -73,6 +73,18 @@
   color: #1d1e22;
 }
 
+.wishlist-button.in-wishlist {
+  background-color: #ef4444;
+}
+
+.wishlist-button.in-wishlist .wishlist-icon {
+  color: white;
+}
+
+.wishlist-button.in-wishlist:hover {
+  background-color: #dc2626;
+}
+
 .product-details {
   padding: 1rem;
 }
